@@ -9,8 +9,10 @@ kaplay({
   letterbox: true,
 });
 
+//setting gravity
 setGravity(1600);
 
+//ground
 const ground = add([
   rect(5000, 48),
   pos(-1000, 672),
@@ -19,6 +21,7 @@ const ground = add([
   body({ isStatic: true }),
 ]);
 
+//ceiling
 const ceiling = add([
   rect(5000, 48),
   pos(-1000, 0),
@@ -27,6 +30,7 @@ const ceiling = add([
   body({ isStatic: true }),
 ]);
 
+//sprites
 await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
   sliceX: 13,
   sliceY: 1,
@@ -37,10 +41,10 @@ await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
     left: { from: 12, to: 12 },
   },
 });
-
 loadSprite("spike", "/sprites/smallSpike.png")
 loadSprite("longSpike", "/sprites/longSpike.png")
 
+//enemies
 let spike = add([
   sprite("spike"),
   area(),
@@ -78,6 +82,17 @@ function spawnBlob() {
     rotate(),
   ]);
 
+  const hpText = blob.add([
+  text(`${blob.hp}/${blob.maxHP}`, { size: 5 }),
+  pos(-40, -50),
+  ]);
+
+  blob.onUpdate(() => {
+    hpText.text = `${blob.hp}/${blob.maxHP}`;
+});
+
+
+
   onKeyPress(["space", "w"], () => {
     if (blob && blob.isGrounded()) {
       blob.jump();
@@ -105,6 +120,21 @@ function spawnBlob() {
 
 spawnBlob();
 
+onKeyDown("d", () => {
+  if (blob) {
+    blob.play("right");
+    blob.move(SPEED, 0);
+  }
+});
+
+onKeyDown("a", () => {
+  if (blob) {
+    blob.play("left");
+    blob.move(-SPEED, 0);
+  }
+});
+
+
 onUpdate(() => {
   if (!blob) return;
 
@@ -116,14 +146,6 @@ onUpdate(() => {
   }
 
   setCamPos(blob.pos);
-
-  if (isKeyDown("d")) {
-    blob.play("right");
-    blob.move(SPEED, 0);
-  } else if (isKeyDown("a")) {
-    blob.play("left");
-    blob.move(-SPEED, 0);
-  }
 });
 
 const respawnBtn = add([
