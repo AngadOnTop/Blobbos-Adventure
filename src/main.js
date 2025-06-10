@@ -38,16 +38,30 @@ await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
   },
 });
 
-await loadSprite("spike", "/sprites/smallSpike.png")
+loadSprite("spike", "/sprites/smallSpike.png")
+loadSprite("longSpike", "/sprites/longSpike.png")
 
 let spike = add([
   sprite("spike"),
   area(),
-  body({ isStatic: false }),
-  pos(400, 200),
+  body({ isStatic: true }),
+  pos(400, 640),
   outline(2),
-  "enemy"
-]);d
+  "smallSpike",
+  scale(4)
+]);
+
+// FORMULA = 720 - 48 - SPRITE.HEIGHT * SCALE FACTOR
+
+let longSpike = add([
+  sprite("longSpike"),
+  area(),
+  body({ isStatic: true }),
+  outline(2),
+  "longSpike",
+  scale(4),
+  pos(450, 612)
+])
 
 let blob;
 const SPEED = 300;
@@ -75,9 +89,13 @@ function spawnBlob() {
     blob.play("idle");
   });
 
-  blob.onCollide("enemy", () => {
+  blob.onCollide("smallSpike", () => {
     blob.hurt(1);
   });
+
+  blob.onCollide("longSpike", () => {
+    blob.hurt(3)
+  })
 
   blob.onDeath(() => {
     destroy(blob);
@@ -86,8 +104,6 @@ function spawnBlob() {
 }
 
 spawnBlob();
-
-let isGravityFlipped = false
 
 onUpdate(() => {
   if (!blob) return;
@@ -108,15 +124,6 @@ onUpdate(() => {
     blob.play("left");
     blob.move(-SPEED, 0);
   }
-  if (isKeyDown("g")) {
-    isGravityFlipped = !isGravityFlipped
-    setGravity(isGravityFlipped ? -1600 : 1600)
-    if (isGravityFlipped) {
-      blob.angle = 180
-   } else {
-      blob.angle = 0
-}
-  }
 });
 
 const respawnBtn = add([
@@ -132,3 +139,4 @@ respawnBtn.onClick(() => {
     spawnBlob();
   }
 });
+
