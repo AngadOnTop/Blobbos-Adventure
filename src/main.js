@@ -38,6 +38,17 @@ await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
   },
 });
 
+await loadSprite("spike", "/sprites/smallSpike.png")
+
+let spike = add([
+  sprite("spike"),
+  area(),
+  body({ isStatic: false }),
+  pos(400, 200),
+  outline(2),
+  "enemy"
+]);d
+
 let blob;
 const SPEED = 300;
 
@@ -50,6 +61,7 @@ function spawnBlob() {
     body(),
     health(3),
     "player",
+    rotate(),
   ]);
 
   onKeyPress(["space", "w"], () => {
@@ -80,7 +92,7 @@ let isGravityFlipped = false
 onUpdate(() => {
   if (!blob) return;
 
-  if (blob.pos.y > 1000) {
+  if (blob.pos.y > 1000 || blob.pos.y < 0) {
     destroy(blob);
     blob = null;
     spawnBlob();
@@ -99,6 +111,11 @@ onUpdate(() => {
   if (isKeyDown("g")) {
     isGravityFlipped = !isGravityFlipped
     setGravity(isGravityFlipped ? -1600 : 1600)
+    if (isGravityFlipped) {
+      blob.angle = 180
+   } else {
+      blob.angle = 0
+}
   }
 });
 
@@ -111,23 +128,7 @@ const respawnBtn = add([
 ]);
 
 respawnBtn.onClick(() => {
-  isGravityFlipped = false
   if (!blob) {
     spawnBlob();
   }
 });
-
-add([
-  rect(20, 40),
-  area(),
-  body({ isStatic: false }),
-  pos(400, 200),
-  outline(2),
-  "enemy"
-]);
-
-if (isGravityFlipped) {
-  setCamRot(180)
-} else {
-  rotate(blob)
-}
