@@ -4,7 +4,7 @@ import "kaplay/global";
 kaplay({
   width: 1280,
   height: 720,
-  background: [0, 255, 0],
+  background: [255, 255, 255],
   scale: 1,
   letterbox: true,
 });
@@ -77,21 +77,31 @@ function spawnBlob() {
     scale(4),
     area(),
     body(),
-    health(3),
+    health(100, 100),
     "player",
     rotate(),
   ]);
 
-  const hpText = blob.add([
-  text(`${blob.hp}/${blob.maxHP}`, { size: 5 }),
-  pos(-40, -50),
-  ]);
+debug.log(blob.pos)
 
-  blob.onUpdate(() => {
-    hpText.text = `${blob.hp}/${blob.maxHP}`;
+  const hpBarBg = blob.add([
+  rect(40, 6),
+  color(255, 0, 0),
+  pos(-14, -20),
+  z(1)
+]);
+
+const hpBar = blob.add([
+  rect(40, 6),
+  color(0, 255, 0),
+  pos(-14, -20),
+  z(200),
+]);
+
+blob.onUpdate(() => {
+  const ratio = blob.hp() / blob.maxHP()
+  hpBar.width = 40 * ratio;
 });
-
-
 
   onKeyPress(["space", "w"], () => {
     if (blob && blob.isGrounded()) {
