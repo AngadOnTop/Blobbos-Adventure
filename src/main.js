@@ -12,24 +12,6 @@ kaplay({
 //setting gravity
 setGravity(1600);
 
-//ground
-const ground = add([
-  rect(5000, 48),
-  pos(-1000, 672),
-  area(),
-  color(0, 0, 255),
-  body({ isStatic: true }),
-]);
-
-//ceiling
-const ceiling = add([
-  rect(5000, 48),
-  pos(-1000, 0),
-  area(),
-  color(0, 0, 255),
-  body({ isStatic: true }),
-]);
-
 //sprites
 await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
   sliceX: 13,
@@ -43,6 +25,29 @@ await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
 });
 loadSprite("spike", "/sprites/smallSpike.png")
 loadSprite("longSpike", "/sprites/longSpike.png")
+loadSprite("coin", "/sprites/coin.png")
+loadSprite("ground", "/sprites/ground.png")
+loadSound("jump", "/sounds/jump.wav")
+loadSound("collectingCoin", "/sounds/coin.wav")
+loadSound("hit", "/sounds/hit.wav")
+
+//ground
+const ground = add([
+  sprite("ground"),
+  scale(4),
+  pos(200, 672),
+  area(),
+  body({ isStatic: true }),
+])
+
+//ceiling
+const ceiling = add([
+  rect(5000, 48),
+  pos(-1000, 0),
+  area(),
+  color(0, 0, 255),
+  body({ isStatic: true }),
+])
 
 //enemies
 let spike = add([
@@ -65,6 +70,15 @@ let longSpike = add([
   "longSpike",
   scale(4),
   pos(450, 612)
+])
+
+let coin = add([
+  sprite("coin"),
+  area(),
+  body( { isStatic: false} ),
+  "coin",
+  scale(3),
+  pos(550, 624)
 ])
 
 let blob;
@@ -106,7 +120,8 @@ blob.onUpdate(() => {
   onKeyPress(["space", "w"], () => {
     if (blob && blob.isGrounded()) {
       blob.jump();
-      blob.play("jump");
+      blob.play("jump"),
+      play("jump")
     }
   });
 
@@ -115,11 +130,13 @@ blob.onUpdate(() => {
   });
 
   blob.onCollide("smallSpike", () => {
-    blob.hurt(1);
+    blob.hurt(5),
+    play("hit")
   });
 
   blob.onCollide("longSpike", () => {
-    blob.hurt(3)
+    blob.hurt(10),
+    play("hit")
   })
 
   blob.onDeath(() => {
@@ -172,3 +189,8 @@ respawnBtn.onClick(() => {
   }
 });
 
+blob.onCollide("coin", (c) => {
+  destroy(c),
+  play("collectingCoin"),
+  setGravity(-1000)
+})
