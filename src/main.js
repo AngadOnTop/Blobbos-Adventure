@@ -9,10 +9,20 @@ kaplay({
   letterbox: true,
 });
 
-//setting gravity
 setGravity(1600);
+let score = 0;
 
-//sprites
+// UI - Score Text at top middle
+const scoreLabel = add([
+  text(`Score: ${score}`, { size: 24 }),
+  pos(640, 16),
+  anchor("center"),
+  fixed(),
+  z(100),
+  color(0, 0, 0),
+]);
+
+// Sprites
 await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
   sliceX: 13,
   sliceY: 1,
@@ -23,15 +33,16 @@ await loadSprite("smiley", "/sprites/evenBetterSheet.png", {
     left: { from: 12, to: 12 },
   },
 });
-loadSprite("spike", "/sprites/smallSpike.png")
-loadSprite("longSpike", "/sprites/longSpike.png")
-loadSprite("coin", "/sprites/coin.png")
-loadSprite("ground", "/sprites/ground.png")
-loadSound("jump", "/sounds/jump.wav")
-loadSound("collectingCoin", "/sounds/coin.wav")
-loadSound("hit", "/sounds/hit.wav")
+loadSprite("spike", "/sprites/smallSpike.png");
+loadSprite("longSpike", "/sprites/longSpike.png");
+loadSprite("coin", "/sprites/coin.png");
+loadSprite("ground", "/sprites/ground.png");
 
-//ground
+loadSound("jump", "/sounds/jump.wav");
+loadSound("collectingCoin", "/sounds/coin.wav");
+loadSound("hit", "/sounds/hit.wav");
+
+// Ground
 for (let i = 0; i < 10; i++) {
   add([
     sprite("ground"),
@@ -43,7 +54,7 @@ for (let i = 0; i < 10; i++) {
   ]);
 }
 
-//ceiling
+// Ceiling
 add([
   rect(5000, 48),
   pos(-1000, 0),
@@ -52,7 +63,7 @@ add([
   body({ isStatic: true }),
 ]);
 
-//enemies
+// Enemies
 add([
   sprite("spike"),
   area(),
@@ -60,7 +71,7 @@ add([
   pos(400, 640),
   outline(2),
   "smallSpike",
-  scale(4)
+  scale(4),
 ]);
 
 add([
@@ -70,17 +81,21 @@ add([
   outline(2),
   "longSpike",
   scale(4),
-  pos(450, 612)
+  pos(450, 612),
 ]);
 
-add([
-  sprite("coin"),
-  area(),
-  body({ isStatic: false }),
-  "coin",
-  scale(3),
-  pos(550, 624)
-]);
+// Coin
+function spawnCoin() {
+  return add([
+    sprite("coin"),
+    area(),
+    body({ isStatic: false }),
+    "coin",
+    scale(3),
+    pos(rand(200, 800), 624),
+  ]);
+}
+let coin = spawnCoin();
 
 let blob;
 const SPEED = 300;
@@ -94,23 +109,21 @@ function spawnBlob() {
     body(),
     health(100, 100),
     "player",
-    rotate()
+    rotate(),
   ]);
-
-  debug.log(blob.pos)
 
   const hpBarBg = blob.add([
     rect(40, 6),
     color(255, 0, 0),
     pos(-14, -20),
-    z(1)
+    z(1),
   ]);
 
   const hpBar = blob.add([
     rect(40, 6),
     color(0, 255, 0),
     pos(-14, -20),
-    z(200),
+    z(2),
   ]);
 
   const hpText = blob.add([
@@ -118,8 +131,8 @@ function spawnBlob() {
     color(0, 0, 0),
     pos(5, -16),
     anchor("center"),
-    z(3000),
-  ])
+    z(3),
+  ]);
 
   blob.onUpdate(() => {
     const ratio = blob.hp() / blob.maxHP();
@@ -147,6 +160,14 @@ function spawnBlob() {
   blob.onCollide("longSpike", () => {
     blob.hurt(10);
     play("hit");
+  });
+
+  blob.onCollide("coin", (c) => {
+    destroy(c);
+    score += 1;
+    scoreLabel.text = `Score: ${score}`;
+    play("collectingCoin");
+    coin = spawnCoin();
   });
 
   blob.onDeath(() => {
@@ -196,9 +217,4 @@ respawnBtn.onClick(() => {
   if (!blob) {
     spawnBlob();
   }
-});
-
-blob.onCollide("coin", (c) => {
-  destroy(c);
-  play("collectingCoin");
 });
