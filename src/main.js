@@ -32,25 +32,28 @@ loadSound("collectingCoin", "/sounds/coin.wav")
 loadSound("hit", "/sounds/hit.wav")
 
 //ground
-const ground = add([
-  sprite("ground"),
-  scale(4),
-  pos(200, 672),
-  area(),
-  body({ isStatic: true }),
-])
+for (let i = 0; i < 10; i++) {
+  add([
+    sprite("ground"),
+    scale(4),
+    outline(2),
+    pos(200 + i * 64, 672),
+    area(),
+    body({ isStatic: true }),
+  ]);
+}
 
 //ceiling
-const ceiling = add([
+add([
   rect(5000, 48),
   pos(-1000, 0),
   area(),
   color(0, 0, 255),
   body({ isStatic: true }),
-])
+]);
 
 //enemies
-let spike = add([
+add([
   sprite("spike"),
   area(),
   body({ isStatic: true }),
@@ -60,9 +63,7 @@ let spike = add([
   scale(4)
 ]);
 
-// FORMULA = 720 - 48 - SPRITE.HEIGHT * SCALE FACTOR
-
-let longSpike = add([
+add([
   sprite("longSpike"),
   area(),
   body({ isStatic: true }),
@@ -70,16 +71,16 @@ let longSpike = add([
   "longSpike",
   scale(4),
   pos(450, 612)
-])
+]);
 
-let coin = add([
+add([
   sprite("coin"),
   area(),
-  body( { isStatic: false} ),
+  body({ isStatic: false }),
   "coin",
   scale(3),
   pos(550, 624)
-])
+]);
 
 let blob;
 const SPEED = 300;
@@ -93,35 +94,44 @@ function spawnBlob() {
     body(),
     health(100, 100),
     "player",
-    rotate(),
+    rotate()
   ]);
 
-debug.log(blob.pos)
+  debug.log(blob.pos)
 
   const hpBarBg = blob.add([
-  rect(40, 6),
-  color(255, 0, 0),
-  pos(-14, -20),
-  z(1)
-]);
+    rect(40, 6),
+    color(255, 0, 0),
+    pos(-14, -20),
+    z(1)
+  ]);
 
-const hpBar = blob.add([
-  rect(40, 6),
-  color(0, 255, 0),
-  pos(-14, -20),
-  z(200),
-]);
+  const hpBar = blob.add([
+    rect(40, 6),
+    color(0, 255, 0),
+    pos(-14, -20),
+    z(200),
+  ]);
 
-blob.onUpdate(() => {
-  const ratio = blob.hp() / blob.maxHP()
-  hpBar.width = 40 * ratio;
-});
+  const hpText = blob.add([
+    text(`${blob.hp()}/${blob.maxHP()}`, { size: 5 }),
+    color(0, 0, 0),
+    pos(5, -16),
+    anchor("center"),
+    z(3000),
+  ])
+
+  blob.onUpdate(() => {
+    const ratio = blob.hp() / blob.maxHP();
+    hpBar.width = 40 * ratio;
+    hpText.text = `${Math.max(blob.hp(), 0)}/${blob.maxHP()}`;
+  });
 
   onKeyPress(["space", "w"], () => {
     if (blob && blob.isGrounded()) {
       blob.jump();
-      blob.play("jump"),
-      play("jump")
+      blob.play("jump");
+      play("jump");
     }
   });
 
@@ -130,14 +140,14 @@ blob.onUpdate(() => {
   });
 
   blob.onCollide("smallSpike", () => {
-    blob.hurt(5),
-    play("hit")
+    blob.hurt(5);
+    play("hit");
   });
 
   blob.onCollide("longSpike", () => {
-    blob.hurt(10),
-    play("hit")
-  })
+    blob.hurt(10);
+    play("hit");
+  });
 
   blob.onDeath(() => {
     destroy(blob);
@@ -160,7 +170,6 @@ onKeyDown("a", () => {
     blob.move(-SPEED, 0);
   }
 });
-
 
 onUpdate(() => {
   if (!blob) return;
@@ -190,7 +199,6 @@ respawnBtn.onClick(() => {
 });
 
 blob.onCollide("coin", (c) => {
-  destroy(c),
-  play("collectingCoin"),
-  setGravity(-1000)
-})
+  destroy(c);
+  play("collectingCoin");
+});
