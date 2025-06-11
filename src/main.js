@@ -18,7 +18,6 @@ const SPEED = 300
 let score = 0
 let blob = null
 
-// Load assets
 await Promise.all([
   loadSprite("smiley", "/sprites/evenBetterSheet.png", {
     sliceX: 13,
@@ -43,7 +42,6 @@ await Promise.all([
   loadSound("death", "/sounds/death.wav"),
 ])
 
-// Background
 add([
   sprite("background"),
   pos(0, 0),
@@ -53,7 +51,6 @@ add([
   z(-999),
 ])
 
-// Score UI
 const scoreLabel = add([
   text(`Score: ${score}`, { size: SCORE_FONT }),
   pos(WIDTH / 2, 16),
@@ -63,7 +60,6 @@ const scoreLabel = add([
   color(0, 0, 0),
 ])
 
-// Ground + Dirt
 for (let i = 0; i < GROUND_TILE_COUNT; i++) {
   const x = 200 + i * 64
   const y = 672
@@ -79,12 +75,14 @@ for (let i = 0; i < GROUND_TILE_COUNT; i++) {
   for (let j = 1; j <= 3; j++) {
     add([
       sprite("dirt"),
-      scale(4),
       pos(x, y + j * 64),
       z(-1),
+      { renderAngle: 90 * randi(0, 4) },
+      scale(4),
     ])
   }
 }
+
 
 // Ceiling
 add([
@@ -114,7 +112,6 @@ add([
   "longSpike",
 ])
 
-// Coin logic
 function spawnCoin() {
   const y = 624
   const coin = add([
@@ -139,7 +136,6 @@ function spawnCoin() {
 
 let coin = spawnCoin()
 
-// Player logic
 function spawnBlob() {
   blob = add([
     sprite("smiley", { anim: "idle" }),
@@ -240,7 +236,6 @@ add([
   if (!blob) spawnBlob()
 })
 
-// Camera follow + offscreen detection
 onUpdate(() => {
   if (!blob) return
 
