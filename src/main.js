@@ -86,19 +86,37 @@ add([
 
 // Coin
 function spawnCoin() {
-  return add([
+  const y = 624;
+  const coin = add([
     sprite("coin"),
     area(),
-    body({ isStatic: false }),
+    body({ isStatic: true }),
     "coin",
     scale(3),
-    pos(rand(200, 800), 624),
+    pos(rand(200, 800), y),
   ]);
-}
-let coin = spawnCoin();
 
-let blob;
-const SPEED = 300;
+  let goingUp = true;
+
+  // Tween coin up and down in a loop
+  coin.onUpdate(() => {
+    const offset = goingUp ? -15 : 15;
+    tween(
+      coin.pos.y,
+      coin.pos.y + offset,
+      0.8,
+      (val) => coin.pos.y = val,
+      easings.linear
+    ).then(() => goingUp = !goingUp);
+  });
+
+  return coin;
+}
+
+let coin = spawnCoin()
+
+let blob
+const SPEED = 300
 
 function spawnBlob() {
   blob = add([
