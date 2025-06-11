@@ -55,17 +55,30 @@ add([
   z(-999),
 ])
 
-
-// Ground
+// Ground + Dirt Layers
 for (let i = 0; i < 20; i++) {
+  const x = 200 + i * 64
+  const y = 672
+
+  // Top ground tile
   add([
     sprite("ground"),
     scale(4),
     outline(10),
-    pos(200 + i * 64, 672),
+    pos(x, y),
     area(),
     body({ isStatic: true }),
   ])
+
+  // Dirt layers below the ground
+  for (let j = 1; j <= 6; j++) {
+    add([
+      sprite("dirt"),
+      scale(4),
+      pos(x, y + j * 64),
+      z(-1),
+    ])
+  }
 }
 
 // Ceiling
