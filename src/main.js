@@ -30,14 +30,21 @@ await Promise.all([
   loadSprite("background", "/sprites/background.jpg"),
   loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
   loadSprite("adventure", "/sprites/ADVENTURE.png"),
+  loadSprite("start", "/sprites/start.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
   loadSound("death", "/sounds/death.wav"),
+  loadSound("music", "/sounds/music.mp3")
 ])
 
 // Main Menu
 function showMainMenu() {
+  //music
+  play("music", {
+    loop: true
+  })
+
   // Background
   add([
     sprite("background"),
@@ -63,6 +70,14 @@ function showMainMenu() {
     pos(width() / 2, height() / 3 + 20),
     anchor("center"),
     fixed(),
+  ])
+
+  const start = add([
+    sprite("start"),
+    scale(4),
+    pos(width() / 2, height() / 3 + 200),
+    anchor("center"),
+    fixed()
   ])
 
 function floatY(obj, distance = 10, duration = 1) {
