@@ -8,10 +8,8 @@ kaplay({
   letterbox: true,
 })
 
-// Game state
 let gameStarted = false
 
-// Load assets
 await Promise.all([
   loadSprite("smiley", "/sprites/evenBetterSheet.png", {
     sliceX: 13,
@@ -27,6 +25,7 @@ await Promise.all([
   loadSprite("longSpike", "/sprites/longSpike.png"),
   loadSprite("coin", "/sprites/coin.png"),
   loadSprite("ground", "/sprites/ground.png"),
+  loadSprite("dirt", "/sprites/dirt.png"),
   loadSprite("background", "/sprites/background.jpg"),
   loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
   loadSprite("adventure", "/sprites/ADVENTURE.png"),
@@ -36,9 +35,7 @@ await Promise.all([
   loadSound("death", "/sounds/death.wav"),
 ])
 
-// Main Menu
 function showMainMenu() {
-  // Background
   add([
     sprite("background"),
     pos(0, 0),
@@ -48,22 +45,36 @@ function showMainMenu() {
     z(-999),
   ])
 
-  // Title
-  add([
-    text("BLOBBOS ADVENTURE", {
-      size: 64,
-      font: "monospace",
-    }),
-    pos(width() / 2, height() / 3),
+  const titleBlobbo = add([
+    sprite("blobbo"),
+    pos(width() / 2, height() / 3 - 60),
     anchor("center"),
-    color(255, 255, 255),
     fixed(),
   ])
 
-  // Start Game Button
+  const titleAdventure = add([
+    sprite("adventure"),
+    pos(width() / 2, height() / 3 + 20),
+    anchor("center"),
+    fixed(),
+  ])
+
+  function floatY(obj) {
+    let goingUp = true
+    loop(1.2, () => {
+      if (!obj.exists()) return
+      const offset = goingUp ? -10 : 10
+      tween(obj.pos.y, obj.pos.y + offset, 1, (val) => obj.pos.y = val)
+      goingUp = !goingUp
+    })
+  }
+
+  floatY(titleBlobbo)
+  floatY(titleAdventure)
+
   const startButton = add([
     rect(240, 60),
-    pos(width() / 2, height() / 2),
+    pos(width() / 2, height() / 2 + 100),
     anchor("center"),
     area(),
     color(0, 0, 0),
@@ -72,26 +83,15 @@ function showMainMenu() {
   ])
 
   add([
-    text("START GAME", {
-      size: 32,
-      font: "monospace",
-    }),
-    pos(width() / 2, height() / 2),
+    text("START GAME", { size: 32, font: "monospace" }),
+    pos(width() / 2, height() / 2 + 100),
     anchor("center"),
     color(255, 255, 255),
     fixed(),
   ])
 
-  // Button hover effect
-  startButton.onHover(() => {
-    startButton.color = rgb(50, 50, 50)
-  })
-
-  startButton.onHoverEnd(() => {
-    startButton.color = rgb(0, 0, 0)
-  })
-
-  // Start game on click
+  startButton.onHover(() => startButton.color = rgb(50, 50, 50))
+  startButton.onHoverEnd(() => startButton.color = rgb(0, 0, 0))
   startButton.onClick(() => {
     destroyAll()
     gameStarted = true
@@ -99,7 +99,6 @@ function showMainMenu() {
   })
 }
 
-// Game initialization
 function startGame() {
   setGravity(1600)
 
@@ -140,9 +139,18 @@ function startGame() {
       area(),
       body({ isStatic: true }),
     ])
+
+    for (let j = 1; j <= 3; j++) {
+      add([
+        sprite("dirt"),
+        scale(4),
+        pos(x, y + j * 64),
+        rotate(rand([0, 90, 180, 270])),
+        z(-1),
+      ])
+    }
   }
 
-  // Ceiling
   add([
     rect(5000, 48),
     pos(-1000, 0),
@@ -151,7 +159,6 @@ function startGame() {
     body({ isStatic: true }),
   ])
 
-  // Spikes
   add([
     sprite("spike"),
     area(),
@@ -181,14 +188,12 @@ function startGame() {
     ])
 
     let goingUp = true
-
     loop(1.0, () => {
       if (!coin.exists()) return
       const offset = goingUp ? -15 : 15
       tween(coin.pos.y, coin.pos.y + offset, 0.8, (val) => coin.pos.y = val)
       goingUp = !goingUp
     })
-
     return coin
   }
 
@@ -268,7 +273,6 @@ function startGame() {
 
   spawnBlob()
 
-  // Controls
   onKeyDown("d", () => {
     if (blob) {
       blob.play("right")
@@ -283,7 +287,6 @@ function startGame() {
     }
   })
 
-  // Respawn button
   add([
     text("Respawn", { size: 32 }),
     pos(WIDTH / 2, 300),
@@ -296,14 +299,12 @@ function startGame() {
 
   onUpdate(() => {
     if (!blob) return
-
     if (blob.pos.y > 1000 || blob.pos.y < 0) {
       destroy(blob)
       blob = null
       spawnBlob()
       return
     }
-
     setCamPos(blob.pos)
   })
 }
