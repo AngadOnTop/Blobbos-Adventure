@@ -72,14 +72,6 @@ function showMainMenu() {
     fixed(),
   ])
 
-  const start = add([
-    sprite("start"),
-    scale(4),
-    pos(width() / 2, height() / 3 + 200),
-    anchor("center"),
-    fixed()
-  ])
-
 function floatY(obj, distance = 10, duration = 1) {
   let goingUp = true
   loop(duration * 2, () => {
@@ -94,38 +86,25 @@ floatY(blobbo)
 floatY(adventure)
 
   // Start Game Button
-  const startButton = add([
-    rect(240, 60),
-    pos(width() / 2, height() / 2),
+  const start = add([
+    sprite("start"),
+    scale(4),
+    pos(width() / 2, height() / 3 + 200),
     anchor("center"),
-    area(),
-    color(0, 0, 0),
-    outline(4, rgb(255, 255, 255)),
     fixed(),
+    area()
   ])
 
-  add([
-    text("START GAME", {
-      size: 32,
-      font: "monospace",
-    }),
-    pos(width() / 2, height() / 2),
-    anchor("center"),
-    color(255, 255, 255),
-    fixed(),
-  ])
-
-  // Button hover effect
-  startButton.onHover(() => {
-    startButton.color = rgb(50, 50, 50)
+  start.onHover(() => {
+    start.scaleBy(1.2)
   })
 
-  startButton.onHoverEnd(() => {
-    startButton.color = rgb(0, 0, 0)
+  start.onHoverEnd(() => {
+    start.scaleTo(4)
   })
 
   // Start game on click
-  startButton.onClick(() => {
+  start.onClick(() => {
     destroyAll()
     gameStarted = true
     startGame()
@@ -205,12 +184,22 @@ function startGame() {
 
   function spawnCoin() {
     const y = 624
+    // Define safe zones for coin spawning (avoiding spike areas)
+    const safeZones = [
+      { min: 200, max: 380 },  // Before first spike
+      { min: 500, max: 800 }   // After second spike
+    ]
+    
+    // Randomly select a safe zone
+    const zone = choose(safeZones)
+    const x = rand(zone.min, zone.max)
+    
     const coin = add([
       sprite("coin"),
       area(),
       "coin",
       scale(3),
-      pos(rand(200, 800), y),
+      pos(x, y),
     ])
 
     let goingUp = true
@@ -267,18 +256,28 @@ function startGame() {
     blob.onCollide("smallSpike", () => {
       blob.hurt(5)
       play("hit")
+      blob.use(color(255, 0, 0))
+      wait(0.2, () => {
+        blob.use(color())
+      })
     })
 
     blob.onCollide("longSpike", () => {
       blob.hurt(10)
       play("hit")
+      blob.use(color(255, 0, 0))
+      wait(0.2, () => {
+        blob.use(color())
+      })
     })
 
     blob.onCollide("coin", (c) => {
       destroy(c)
       score++
       scoreLabel.text = `Score: ${score}`
-      play("collectingCoin")
+      play("collectingCoin", {
+        volume: 0.5
+      })
       coin = spawnCoin()
     })
 
