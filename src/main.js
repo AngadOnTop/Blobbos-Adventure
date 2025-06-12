@@ -50,14 +50,18 @@ function showMainMenu() {
 
   // Title
   add([
-    text("BLOBBOS ADVENTURE", {
-      size: 64,
-      font: "monospace",
-    }),
-    pos(width() / 2, height() / 3),
+    sprite("blobbo"),
+    scale(4),
+    pos(width() / 2, height() / 3 - 60),
     anchor("center"),
-    color(255, 255, 255),
     fixed(),
+  ])
+
+  add([
+    sprite("adventure"),
+    scale(4),
+    pos(width() / 2, height() / 3 + 20),
+    anchor("center")
   ])
 
   // Start Game Button
