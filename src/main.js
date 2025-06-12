@@ -28,6 +28,8 @@ await Promise.all([
   loadSprite("coin", "/sprites/coin.png"),
   loadSprite("ground", "/sprites/ground.png"),
   loadSprite("background", "/sprites/background.jpg"),
+  loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
+  loadSprite("adventure", "/sprites/ADVENTURE.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
