@@ -239,10 +239,11 @@ function startGame() {
     blob.onCollide("smallSpike", () => {
       blob.hurt(50)
       play("hit")
-      blob.use(color(255, 0, 0))
+
+      if (blob) blob.use(color(255, 0, 0))
+
       wait(0.2, () => {
         if (blob) {
-          blob.use(color(255, 0, 0))
           blob.use(color())
         }
       })
@@ -251,9 +252,11 @@ function startGame() {
     blob.onCollide("longSpike", () => {
       blob.hurt(100)
       play("hit")
+
+      if (blob) blob.use(color(255, 0, 0))
+
       wait(0.2, () => {
         if (blob) {
-          blob.use(color(255, 0, 0))
           blob.use(color())
         }
       })
