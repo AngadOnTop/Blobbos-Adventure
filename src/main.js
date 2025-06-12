@@ -61,8 +61,22 @@ function showMainMenu() {
     sprite("adventure"),
     scale(4),
     pos(width() / 2, height() / 3 + 20),
-    anchor("center")
+    anchor("center"),
+    fixed(),
   ])
+
+function floatY(obj, distance = 10, duration = 1) {
+  let goingUp = true
+  loop(duration * 2, () => {
+    if (!obj.exists()) return
+    const offset = goingUp ? -distance : distance
+    tween(obj.pos.y, obj.pos.y + offset, duration, val => obj.pos.y = val)
+    goingUp = !goingUp
+  })
+}
+
+floatY(blobbo)
+floatY(adventure)
 
   // Start Game Button
   const startButton = add([
