@@ -8,8 +8,9 @@ kaplay({
   letterbox: true,
 })
 
-// Game state
 let gameStarted = false
+let blob = null
+const SPEED = 300
 
 // Load assets
 await Promise.all([
@@ -35,17 +36,12 @@ await Promise.all([
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
   loadSound("death", "/sounds/death.wav"),
-  loadSound("music", "/sounds/music.mp3")
+  loadSound("music", "/sounds/music.mp3"),
 ])
 
-// Main Menu
 function showMainMenu() {
-  //music
-  play("music", {
-    loop: true
-  })
+  play("music", { loop: true })
 
-  // Background
   add([
     sprite("background"),
     pos(0, 0),
@@ -55,7 +51,6 @@ function showMainMenu() {
     z(-999),
   ])
 
-  // Title
   const blobbo = add([
     sprite("blobbo"),
     scale(4),
@@ -72,46 +67,40 @@ function showMainMenu() {
     fixed(),
   ])
 
-function floatY(obj, distance = 10, duration = 1) {
-  let goingUp = true
-  loop(duration * 2, () => {
-    if (!obj.exists()) return
-    const offset = goingUp ? -distance : distance
-    tween(obj.pos.y, obj.pos.y + offset, duration, val => obj.pos.y = val)
-    goingUp = !goingUp
-  })
-}
+  function floatY(obj, distance = 10, duration = 1) {
+    let goingUp = true
+    loop(duration * 2, () => {
+      if (!obj.exists()) return
+      const offset = goingUp ? -distance : distance
+      tween(obj.pos.y, obj.pos.y + offset, duration, val => obj.pos.y = val)
+      goingUp = !goingUp
+    })
+  }
 
-floatY(blobbo)
-floatY(adventure)
+  floatY(blobbo)
+  floatY(adventure)
 
-  // Start Game Button
   const start = add([
     sprite("start"),
     scale(4),
     pos(width() / 2, height() / 3 + 200),
     anchor("center"),
     fixed(),
-    area()
+    area(),
   ])
 
   start.onHover(() => {
-    const from = start.scale.x
-    const to = 4.2
-    tween(from, to, 0.3, (val) => {
+    tween(start.scale.x, 4.2, 0.3, (val) => {
       start.scale = vec2(val)
     }, easings.easeOutElastic)
   })
 
   start.onHoverEnd(() => {
-    const from = start.scale.x
-    const to = 4.0
-    tween(from, to, 0.3, (val) => {
+    tween(start.scale.x, 4.0, 0.3, (val) => {
       start.scale = vec2(val)
     }, easings.easeOutElastic)
   })
 
-  // Start game on click
   start.onClick(() => {
     destroyAll()
     gameStarted = true
@@ -119,17 +108,12 @@ floatY(adventure)
   })
 }
 
-// Game initialization
 function startGame() {
   setGravity(1600)
-
   const WIDTH = 1280
   const HEIGHT = 720
-  const SCORE_FONT = 24
   const GROUND_TILE_COUNT = 20
-  const SPEED = 300
   let score = 0
-  let blob = null
 
   add([
     sprite("background"),
@@ -141,7 +125,7 @@ function startGame() {
   ])
 
   const scoreLabel = add([
-    text(`Score: ${score}`, { size: SCORE_FONT }),
+    text(`Score: ${score}`, { size: 24 }),
     pos(WIDTH / 2, 16),
     anchor("center"),
     fixed(),
@@ -150,19 +134,15 @@ function startGame() {
   ])
 
   for (let i = 0; i < GROUND_TILE_COUNT; i++) {
-    const x = 200 + i * 64
-    const y = 672
-
     add([
       sprite("ground"),
       scale(4),
-      pos(x, y),
+      pos(200 + i * 64, 672),
       area(),
       body({ isStatic: true }),
     ])
   }
 
-  // Ceiling
   add([
     rect(5000, 48),
     pos(-1000, 0),
@@ -171,7 +151,6 @@ function startGame() {
     body({ isStatic: true }),
   ])
 
-  // Spikes
   add([
     sprite("spike"),
     area(),
@@ -192,16 +171,13 @@ function startGame() {
 
   function spawnCoin() {
     const y = 624
-    // Define safe zones for coin spawning (avoiding spike areas)
     const safeZones = [
-      { min: 200, max: 380 },  // Before first spike
-      { min: 500, max: 800 }   // After second spike
+      { min: 200, max: 380 },
+      { min: 500, max: 800 },
     ]
-    
-    // Randomly select a safe zone
     const zone = choose(safeZones)
     const x = rand(zone.min, zone.max)
-    
+
     const coin = add([
       sprite("coin"),
       area(),
@@ -211,11 +187,10 @@ function startGame() {
     ])
 
     let goingUp = true
-
     loop(1.0, () => {
       if (!coin.exists()) return
       const offset = goingUp ? -15 : 15
-      tween(coin.pos.y, coin.pos.y + offset, 0.8, (val) => coin.pos.y = val)
+      tween(coin.pos.y, coin.pos.y + offset, 0.8, val => coin.pos.y = val)
       goingUp = !goingUp
     })
 
@@ -262,20 +237,25 @@ function startGame() {
     })
 
     blob.onCollide("smallSpike", () => {
-      blob.hurt(5)
+      blob.hurt(50)
       play("hit")
       blob.use(color(255, 0, 0))
       wait(0.2, () => {
-        blob.use(color())
+        if (blob) {
+          blob.use(color(255, 0, 0))
+          blob.use(color())
+        }
       })
     })
 
     blob.onCollide("longSpike", () => {
-      blob.hurt(10)
+      blob.hurt(100)
       play("hit")
-      blob.use(color(255, 0, 0))
       wait(0.2, () => {
-        blob.use(color())
+        if (blob) {
+          blob.use(color(255, 0, 0))
+          blob.use(color())
+        }
       })
     })
 
@@ -283,9 +263,7 @@ function startGame() {
       destroy(c)
       score++
       scoreLabel.text = `Score: ${score}`
-      play("collectingCoin", {
-        volume: 0.5
-      })
+      play("collectingCoin", { volume: 0.5 })
       coin = spawnCoin()
     })
 
@@ -296,34 +274,10 @@ function startGame() {
       blob = null
       play("death")
     })
-
-    onKeyPress(["space", "w"], () => {
-      if (blob && blob.isGrounded()) {
-        blob.jump()
-        blob.play("jump")
-        play("jump").volume = 0.3
-      }
-    })
   }
 
   spawnBlob()
 
-  // Controls
-  onKeyDown("d", () => {
-    if (blob) {
-      blob.play("right")
-      blob.move(SPEED, 0)
-    }
-  })
-
-  onKeyDown("a", () => {
-    if (blob) {
-      blob.play("left")
-      blob.move(-SPEED, 0)
-    }
-  })
-
-  // Respawn button
   add([
     text("Respawn", { size: 32 }),
     pos(WIDTH / 2, 300),
@@ -344,8 +298,32 @@ function startGame() {
       return
     }
 
-    setCamPos(blob.pos)
+    if (blob && blob.pos) {
+      setCamPos(blob.pos)
+    }
   })
 }
+
+onKeyDown("d", () => {
+  if (blob) {
+    blob.play("right")
+    blob.move(SPEED, 0)
+  }
+})
+
+onKeyDown("a", () => {
+  if (blob) {
+    blob.play("left")
+    blob.move(-SPEED, 0)
+  }
+})
+
+onKeyPress(["space", "w"], () => {
+  if (blob && blob.isGrounded()) {
+    blob.jump()
+    blob.play("jump")
+    play("jump", { volume: 0.3 })
+  }
+})
 
 showMainMenu()
