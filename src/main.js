@@ -47,6 +47,7 @@ function showMainMenu() {
 
   const titleBlobbo = add([
     sprite("blobbo"),
+    scale(4),
     pos(width() / 2, height() / 3 - 60),
     anchor("center"),
     fixed(),
@@ -54,6 +55,7 @@ function showMainMenu() {
 
   const titleAdventure = add([
     sprite("adventure"),
+    scale(4),
     pos(width() / 2, height() / 3 + 20),
     anchor("center"),
     fixed(),
