@@ -96,11 +96,19 @@ floatY(adventure)
   ])
 
   start.onHover(() => {
-    start.scaleBy(1.2)
+    const from = start.scale.x
+    const to = 4.2
+    tween(from, to, 0.3, (val) => {
+      start.scale = vec2(val)
+    }, easings.easeOutElastic)
   })
 
   start.onHoverEnd(() => {
-    start.scaleTo(4)
+    const from = start.scale.x
+    const to = 4.0
+    tween(from, to, 0.3, (val) => {
+      start.scale = vec2(val)
+    }, easings.easeOutElastic)
   })
 
   // Start game on click
