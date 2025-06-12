@@ -265,7 +265,7 @@ function startGame() {
       if (blob && blob.isGrounded()) {
         blob.jump()
         blob.play("jump")
-        play("jump")
+        play("jump").volume = 0.3
       }
     })
   }
