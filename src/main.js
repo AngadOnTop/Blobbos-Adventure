@@ -38,7 +38,8 @@ await Promise.all([
   loadSound("hit", "/sounds/hit.wav"),
   loadSound("death", "/sounds/death.wav"),
   loadSound("music", "/sounds/music.mp3"),
-  loadSound("UIpop", "/sounds/UIpop.wav")
+  loadSound("UIpop", "/sounds/UIpop.wav"),
+  loadSound("UIstart", "/sounds/UIstart.wav"),
 ])
 
 function showMainMenu() {
@@ -127,6 +128,7 @@ function showMainMenu() {
   })
 
   start.onClick(() => {
+  play("UIstart")
     destroyAll()
     gameStarted = true
     startGame()
@@ -289,6 +291,7 @@ function startGame() {
 
     blob.onCollide("coin", (c) => {
       destroy(c)
+      blob.heal(5)
       score++
       scoreLabel.text = `Score: ${score}`
       play("collectingCoin", { volume: 0.5 })
