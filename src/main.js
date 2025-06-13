@@ -32,11 +32,13 @@ await Promise.all([
   loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
   loadSprite("adventure", "/sprites/ADVENTURE.png"),
   loadSprite("start", "/sprites/start.png"),
+  loadSprite("studio", "/sprites/solostudio.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
   loadSound("death", "/sounds/death.wav"),
   loadSound("music", "/sounds/music.mp3"),
+  loadSound("UIpop", "/sounds/UIpop.wav")
 ])
 
 function showMainMenu() {
@@ -67,6 +69,15 @@ function showMainMenu() {
     fixed(),
   ])
 
+  const studio = add([
+    sprite("studio"),
+    scale(2),
+    pos(width() / 2, height() / 3 + 400),
+    anchor("center"),
+    fixed(),
+    area(),
+  ])
+
   function floatY(obj, distance = 10, duration = 1) {
     let goingUp = true
     loop(duration * 2, () => {
@@ -90,6 +101,7 @@ function showMainMenu() {
   ])
 
   start.onHover(() => {
+    play("UIpop")
     tween(start.scale.x, 5.2, 0.3, (val) => {
       start.scale = vec2(val)
     }, easings.easeOutElastic)
@@ -98,6 +110,19 @@ function showMainMenu() {
   start.onHoverEnd(() => {
     tween(start.scale.x, 5.0, 0.3, (val) => {
       start.scale = vec2(val)
+    }, easings.easeOutElastic)
+  })
+
+  studio.onHover(() => {
+    play("UIpop")
+    tween(studio.scale.x, 3.2, 0.3, (val) => {
+      studio.scale = vec2(val)
+    }, easings.easeOutElastic)
+  })
+
+  studio.onHoverEnd(() => {
+    tween(studio.scale.x, 2.0, 0.3, (val) => {
+      studio.scale = vec2(val)
     }, easings.easeOutElastic)
   })
 
