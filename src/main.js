@@ -53,7 +53,7 @@ function showMainMenu() {
 
   const blobbo = add([
     sprite("blobbo"),
-    scale(4),
+    scale(5),
     pos(width() / 2, height() / 3 - 60),
     anchor("center"),
     fixed(),
@@ -61,7 +61,7 @@ function showMainMenu() {
 
   const adventure = add([
     sprite("adventure"),
-    scale(4),
+    scale(5),
     pos(width() / 2, height() / 3 + 20),
     anchor("center"),
     fixed(),
@@ -82,7 +82,7 @@ function showMainMenu() {
 
   const start = add([
     sprite("start"),
-    scale(4),
+    scale(5),
     pos(width() / 2, height() / 3 + 200),
     anchor("center"),
     fixed(),
@@ -90,13 +90,13 @@ function showMainMenu() {
   ])
 
   start.onHover(() => {
-    tween(start.scale.x, 4.2, 0.3, (val) => {
+    tween(start.scale.x, 5.2, 0.3, (val) => {
       start.scale = vec2(val)
     }, easings.easeOutElastic)
   })
 
   start.onHoverEnd(() => {
-    tween(start.scale.x, 4.0, 0.3, (val) => {
+    tween(start.scale.x, 5.0, 0.3, (val) => {
       start.scale = vec2(val)
     }, easings.easeOutElastic)
   })
