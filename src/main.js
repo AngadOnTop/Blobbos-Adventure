@@ -33,6 +33,7 @@ await Promise.all([
   loadSprite("adventure", "/sprites/ADVENTURE.png"),
   loadSprite("start", "/sprites/start.png"),
   loadSprite("studio", "/sprites/solostudio.png"),
+  loadSprite("heal", "/sprites/heal.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
@@ -224,7 +225,36 @@ function startGame() {
     return coin
   }
 
+  function spawnHeal() {
+  const y = 624
+  const safeZones = [
+    { min: 200, max: 380 },
+    { min: 500, max: 800 },
+  ]
+  const zone = choose(safeZones)
+  const x = rand(zone.min, zone.max)
+
+  const heal = add([
+    sprite("heal"),
+    area(),
+    "heal",
+    scale(3),
+    pos(x, y),
+  ])
+
+  let goingUp = true
+  loop(1.0, () => {
+    if (!heal.exists()) return
+    const offset = goingUp ? -15 : 15
+    tween(heal.pos.y, heal.pos.y + offset, 0.8, val => heal.pos.y = val)
+    goingUp = !goingUp
+  })
+
+  return heal
+  }
+  
   let coin = spawnCoin()
+  let heal = spawnHeal()
 
   function spawnBlob() {
     blob = add([
@@ -291,11 +321,18 @@ function startGame() {
 
     blob.onCollide("coin", (c) => {
       destroy(c)
-      blob.heal(5)
       score++
       scoreLabel.text = `Score: ${score}`
       play("collectingCoin", { volume: 0.5 })
       coin = spawnCoin()
+    })
+
+    blob.onCollide("heal", (h) => {
+      if (blob.hp() < 100) {
+          blob.heal(25)
+          destroy(h)
+          heal = spawnHeal()
+      }
     })
 
     blob.onAnimEnd(() => blob.play("idle"))
