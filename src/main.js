@@ -42,6 +42,7 @@ await Promise.all([
   loadSprite("studio", "/sprites/solostudio.png"),
   loadSprite("heal", "/sprites/heal.png"),
   loadSprite("respawn", "/sprites/respawn.png"),
+  loadSprite("door", "/sprites/door.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
@@ -138,7 +139,243 @@ scene("mainMenu", () => {
 
   start.onClick(() => {
     play("UIstart")
-    go("game")
+    go("tutorial")
+  })
+})
+
+scene("tutorial", () => {
+  setGravity(NORMAL_GRAVITY)
+  const WIDTH = 1280
+  const HEIGHT = 720
+
+  // Create gradient-like background using two rectangles
+  add([
+    rect(WIDTH, HEIGHT),
+    pos(0, 0),
+    color(0, 0, 0),
+    fixed(),
+    z(-999),
+  ])
+
+  add([
+    rect(WIDTH, HEIGHT),
+    pos(0, 0),
+    color(50, 50, 50),
+    opacity(0.5),
+    fixed(),
+    z(-998),
+  ])
+
+  const scoreLabel = add([
+    text(`Score: ${score}`, { size: 24 }),
+    pos(WIDTH / 2, 16),
+    anchor("center"),
+    fixed(),
+    z(100),
+    color(255, 255, 255), // Changed to white for better visibility on dark background
+  ])
+
+  function showDeathScreen() {
+    const deathScreen = add([
+      rect(width(), height()),
+      color(0, 0, 0),
+      opacity(0.7),
+      fixed(),
+      z(100),
+    ])
+
+    const respawnButton = add([
+      sprite("respawn"),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      fixed(),
+      z(101),
+      area(),
+      scale(4),
+    ])
+
+    const menuButton = add([
+      text("Back to Menu", { size: 24 }),
+      pos(width() / 2, height() / 2 + 100),
+      anchor("center"),
+      fixed(),
+      z(101),
+      area(),
+      color(255, 255, 255),
+      scale(1),
+    ])
+
+    respawnButton.onHover(() => {
+      tween(respawnButton.scale.x, 4.2, 0.3, (val) => {
+        respawnButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    respawnButton.onHoverEnd(() => {
+      tween(respawnButton.scale.x, 4.0, 0.3, (val) => {
+        respawnButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    menuButton.onHover(() => {
+      tween(menuButton.scale.x, 1.2, 0.3, (val) => {
+        menuButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    menuButton.onHoverEnd(() => {
+      tween(menuButton.scale.x, 1.0, 0.3, (val) => {
+        menuButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    respawnButton.onClick(() => {
+      destroy(deathScreen)
+      destroy(respawnButton)
+      destroy(menuButton)
+      wait(0.1, () => {
+        spawnBlob()
+      })
+    })
+
+    menuButton.onClick(() => {
+      go("mainMenu")
+    })
+  }
+
+  // Add a simple platform for the tutorial
+  add([
+    rect(2000, 32),
+    pos(0, 700),
+    area(),
+    color(0, 255, 0),
+    body({ isStatic: true }),
+    "platform",
+  ])
+
+  // Add door at the end of the platform
+  add([
+    sprite("door"),
+    scale(4),
+    pos(500, 450), // Positioned above the platform
+    area(),
+    "door",
+  ])
+
+  function spawnBlob() {
+    blob = add([
+      sprite("smiley", { anim: "idle" }),
+      pos(200, 500),
+      scale(4),
+      area(),
+      body(),
+      health(100, 100),
+      rotate(),
+      "player",
+    ])
+
+    const hpBarBg = blob.add([
+      rect(40, 6),
+      color(255, 0, 0),
+      pos(-14, -20),
+    ])
+
+    const hpBar = blob.add([
+      rect(40, 6),
+      color(0, 255, 0),
+      pos(-14, -20),
+    ])
+
+    const hpText = blob.add([
+      text(`${blob.hp()}/${blob.maxHP()}`, { size: 5 }),
+      color(0, 0, 0),
+      pos(5, -16),
+      anchor("center"),
+    ])
+
+    blob.onUpdate(() => {
+      const ratio = blob.hp() / blob.maxHP()
+      hpBar.width = 40 * ratio
+      hpText.text = `${Math.max(blob.hp(), 0)}/${blob.maxHP()}`
+    })
+
+    blob.onAnimEnd(() => blob.play("idle"))
+
+    blob.onDeath(() => {
+      destroy(blob)
+      blob = null
+      play("death")
+      showDeathScreen()
+    })
+
+    blob.onCollide("door", () => {
+      go("game")
+    })
+  }
+
+  spawnBlob()
+
+  onUpdate(() => {
+    if (!blob) return
+
+    if (blob.pos.y > 1000 || blob.pos.y < 0) {
+      destroy(blob)
+      blob = null
+      play("death")
+      showDeathScreen()
+      return
+    }
+
+    if (blob && blob.pos) {
+      setCamPos(blob.pos)
+    }
+  })
+
+  onKeyDown("d", () => {
+    if (blob) {
+      blob.play("right")
+      blob.move(SPEED, 0)
+    }
+  })
+
+  onKeyDown("a", () => {
+    if (blob) {
+      blob.play("left")
+      blob.move(-SPEED, 0)
+    }
+  })
+
+  onKeyPress(["space", "w"], () => {
+    if (blob && blob.isGrounded()) {
+      isJumping = true
+      jumpStartTime = time()
+      blob.play("jump")
+      play("jump", { volume: 0.3 })
+      blob.jump(MIN_JUMP_FORCE)
+    }
+  })
+
+  onKeyDown(["space", "w"], () => {
+    if (blob && isJumping && !blob.isGrounded()) {
+      const holdTime = time() - jumpStartTime
+      if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
+        blob.jump(MAX_JUMP_FORCE - MIN_JUMP_FORCE)
+      }
+    }
+  })
+
+  onKeyRelease(["space", "w"], () => {
+    isJumping = false
+  })
+
+  onKeyDown("s", () => {
+    if (blob && !blob.isGrounded()) {
+      setGravity(FAST_FALL_GRAVITY)
+    }
+  })
+
+  onKeyRelease("s", () => {
+    setGravity(NORMAL_GRAVITY)
   })
 })
 
@@ -176,6 +413,7 @@ scene("game", () => {
     ])
   }
 
+  // Create elevated platform
   for (let i = 0; i < 10; i++) {
     add([
       sprite("ground"),
@@ -185,6 +423,15 @@ scene("game", () => {
       body({ isStatic: true }),
     ])
   }
+
+  // Add door at the end of the elevated platform
+  add([
+    sprite("door"),
+    scale(4),
+    pos(1000, 398), // Positioned above the platform
+    area(),
+    "door",
+  ])
 
   add([
     rect(5000, 48),
@@ -425,6 +672,10 @@ scene("game", () => {
       blob = null
       play("death")
       showDeathScreen()
+    })
+
+    blob.onCollide("door", () => {
+      go("game")
     })
   }
 
