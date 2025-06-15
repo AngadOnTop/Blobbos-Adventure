@@ -21,38 +21,44 @@ const FAST_FALL_GRAVITY = 3200
 let score = 0
 
 // Load assets
-await Promise.all([
-  loadSprite("smiley", "/sprites/evenBetterSheet.png", {
-    sliceX: 13,
-    sliceY: 1,
-    anims: {
-      idle: { from: 0, to: 3, speed: 8, loop: true },
-      jump: { from: 4, to: 7, speed: 8, loop: false },
-      right: { from: 11, to: 11 },
-      left: { from: 12, to: 12 },
-    },
-  }),
-  loadSprite("spike", "/sprites/smallSpike.png"),
-  loadSprite("longSpike", "/sprites/longSpike.png"),
-  loadSprite("coin", "/sprites/coin.png"),
-  loadSprite("ground", "/sprites/ground.png"),
-  loadSprite("background", "/sprites/background.jpg"),
-  loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
-  loadSprite("adventure", "/sprites/ADVENTURE.png"),
-  loadSprite("start", "/sprites/start.png"),
-  loadSprite("studio", "/sprites/solostudio.png"),
-  loadSprite("heal", "/sprites/heal.png"),
-  loadSprite("respawn", "/sprites/respawn.png"),
-  loadSprite("door", "/sprites/door.png"),
-  loadSprite("tile", "/sprites/tile.png"),
-  loadSound("jump", "/sounds/jump.wav"),
-  loadSound("collectingCoin", "/sounds/coin.wav"),
-  loadSound("hit", "/sounds/hit.wav"),
-  loadSound("death", "/sounds/death.wav"),
-  loadSound("music", "/sounds/music.mp3"),
-  loadSound("UIpop", "/sounds/UIpop.wav"),
-  loadSound("UIstart", "/sounds/UIstart.wav"),
-])
+async function loadAssets() {
+  await Promise.all([
+    loadSprite("smiley", "/sprites/evenBetterSheet.png", {
+      sliceX: 13,
+      sliceY: 1,
+      anims: {
+        idle: { from: 0, to: 3, speed: 8, loop: true },
+        jump: { from: 4, to: 7, speed: 8, loop: false },
+        right: { from: 11, to: 11 },
+        left: { from: 12, to: 12 },
+      },
+    }),
+    loadSprite("spike", "/sprites/smallSpike.png"),
+    loadSprite("longSpike", "/sprites/longSpike.png"),
+    loadSprite("coin", "/sprites/coin.png"),
+    loadSprite("ground", "/sprites/ground.png"),
+    loadSprite("background", "/sprites/background.jpg"),
+    loadSprite("blobbo", "/sprites/BLOBBO'S.png"),
+    loadSprite("adventure", "/sprites/ADVENTURE.png"),
+    loadSprite("start", "/sprites/start.png"),
+    loadSprite("studio", "/sprites/solostudio.png"),
+    loadSprite("heal", "/sprites/heal.png"),
+    loadSprite("respawn", "/sprites/respawn.png"),
+    loadSprite("door", "/sprites/door.png"),
+    loadSprite("tile", "/sprites/tile.png"),
+    loadSound("jump", "/sounds/jump.wav"),
+    loadSound("collectingCoin", "/sounds/coin.wav"),
+    loadSound("hit", "/sounds/hit.wav"),
+    loadSound("death", "/sounds/death.wav"),
+    loadSound("music", "/sounds/music.mp3"),
+    loadSound("UIpop", "/sounds/UIpop.wav"),
+    loadSound("UIstart", "/sounds/UIstart.wav"),
+  ])
+}
+
+loadAssets().then(() => {
+  go("mainMenu")
+})
 
 scene("mainMenu", () => {
   play("music", { loop: true })
@@ -810,5 +816,3 @@ scene("game", () => {
     setGravity(NORMAL_GRAVITY)
   })
 })
-
-go("mainMenu")
