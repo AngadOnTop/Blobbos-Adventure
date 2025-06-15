@@ -294,6 +294,13 @@ scene("tutorial", () => {
   createPlatform(200, 672, 20, "vertical") // left wall 
   createPlatform(1480, 672, 8, "vertical") // right wall
   createPlatform(905, 544, 6) //p1
+  add([
+    text("Platform 1", { size: 24 }),
+    pos(width() / 2, height() / 2 - 100),
+    color(255, 255, 255),
+    anchor("center"),
+    z(100),
+  ])
   createPlatform(352, 352, 5) // p2
   createPlatform(840, 224, 4)// p3
   createPlatform(1288, 224, 3) // p4
