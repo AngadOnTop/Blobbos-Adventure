@@ -262,21 +262,46 @@ scene("tutorial", () => {
     ])
   }
 
-  createPlatform(200, 672, 20) 
-  createPlatform(200, 672, 20, "vertical") 
-  createPlatform(1480, 672, 25, "vertical") 
-  createPlatform(905, 544, 6) 
-  createPlatform(392, 352, 5)
-  createPlatform(840, 214, 4)
+  // Helper function for healing items
+  function createHeal(x, y) {
+    const heal = add([
+      sprite("heal"),
+      area(),
+      "heal",
+      scale(2.5),
+      pos(x, y),
+    ])
 
-  // Add some spikes
-  createSpike(852, 182)  // Small spike | x pos + 12 | y pos + 32
-  createSpike(450, 612, "long")  // Long spike
+    // Add floating animation
+    let goingUp = true
+    loop(1.0, () => {
+      if (!heal.exists()) return
+      const offset = goingUp ? -15 : 15
+      tween(heal.pos.y, heal.pos.y + offset, 0.8, val => heal.pos.y = val)
+      goingUp = !goingUp
+    })
+
+    return heal
+  }
+
+  createPlatform(200, 672, 20) // ground
+  createPlatform(200, 672, 20, "vertical") // left wall 
+  createPlatform(1480, 672, 8, "vertical") // right wall
+  createPlatform(905, 544, 6) //p1
+  createPlatform(352, 352, 5) // p2
+  createPlatform(840, 224, 4)// p3
+  createPlatform(1288, 224, 3) // p4
+  createPlatform(1672, 32, 1)
+
+  createSpike(852, 192)  // Small spike | x pos + 12 | y pos - 32
+  createSpike(1044, 164, "long")  // Long spike | x pos + 12 | y pos - 60
+
+  createHeal(1365, 170) // x pos - 13 | y pos - 54
 
   add([
     sprite("door"),
     scale(4),
-    pos(1000, 398),
+    pos(1679, -52),
     area(),
     "door",
   ])
@@ -318,6 +343,39 @@ scene("tutorial", () => {
       hpText.text = `${Math.max(blob.hp(), 0)}/${blob.maxHP()}`
     })
 
+    blob.onCollide("smallSpike", () => {
+      blob.hurt(10)
+      play("hit")
+
+      if (blob) blob.use(color(255, 0, 0))
+
+      wait(0.2, () => {
+        if (blob) {
+          blob.use(color())
+        }
+      })
+    })
+
+    blob.onCollide("longSpike", () => {
+      blob.hurt(25)
+      play("hit")
+
+      if (blob) blob.use(color(255, 0, 0))
+
+      wait(0.2, () => {
+        if (blob) {
+          blob.use(color())
+        }
+      })
+    })
+
+    blob.onCollide("heal", (h) => {
+      if (blob.hp() < 100) {
+        blob.heal(100)
+        destroy(h)
+      }
+    })
+
     blob.onAnimEnd(() => blob.play("idle"))
 
     blob.onDeath(() => {
@@ -337,7 +395,7 @@ scene("tutorial", () => {
   onUpdate(() => {
     if (!blob) return
 
-    if (blob.pos.y > 1000 || blob.pos.y < 0) {
+    if (blob.pos.y > 1000) {
       destroy(blob)
       blob = null
       play("death")
@@ -670,7 +728,6 @@ scene("game", () => {
       if (blob.hp() < 100) {
         blob.heal(25)
         destroy(h)
-        heal = spawnHeal()
       }
     })
 
