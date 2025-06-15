@@ -43,6 +43,7 @@ await Promise.all([
   loadSprite("heal", "/sprites/heal.png"),
   loadSprite("respawn", "/sprites/respawn.png"),
   loadSprite("door", "/sprites/door.png"),
+  loadSprite("tile", "/sprites/tile.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
@@ -166,15 +167,6 @@ scene("tutorial", () => {
     z(-998),
   ])
 
-  const scoreLabel = add([
-    text(`Score: ${score}`, { size: 24 }),
-    pos(WIDTH / 2, 16),
-    anchor("center"),
-    fixed(),
-    z(100),
-    color(255, 255, 255), // Changed to white for better visibility on dark background
-  ])
-
   function showDeathScreen() {
     const deathScreen = add([
       rect(width(), height()),
@@ -243,21 +235,40 @@ scene("tutorial", () => {
     })
   }
 
-  // Add a simple platform for the tutorial
-  add([
-    rect(2000, 32),
-    pos(0, 700),
-    area(),
-    color(0, 255, 0),
-    body({ isStatic: true }),
-    "platform",
-  ])
+  for (let i = 0; i < 20; i++) {
+    add([
+      sprite("tile"),
+      scale(4),
+      pos(200 + i * 64, 672),
+      area(),
+      body({ isStatic: true }),
+    ])
+  }
 
-  // Add door at the end of the platform
+  for (let i = 0; i < 20; i++) {
+    add([
+      sprite("tile"),
+      scale(4),
+      pos(200, 672 - i * 64),
+      area(),
+      body({ isStatic: true }),
+    ])
+  }
+
+  for (let i = 0; i < 25; i++) {
+    add([
+      sprite("tile"),
+      scale(4),
+      pos(1480, 672 - i * 64),
+      area(),
+      body({ isStatic: true }),
+    ])
+  }
+
   add([
     sprite("door"),
     scale(4),
-    pos(500, 450), // Positioned above the platform
+    pos(500, 616),
     area(),
     "door",
   ])
@@ -265,7 +276,7 @@ scene("tutorial", () => {
   function spawnBlob() {
     blob = add([
       sprite("smiley", { anim: "idle" }),
-      pos(200, 500),
+      pos(250, 500),
       scale(4),
       area(),
       body(),
@@ -331,21 +342,21 @@ scene("tutorial", () => {
     }
   })
 
-  onKeyDown("d", () => {
+  onKeyDown(["d", "right"], () => {
     if (blob) {
       blob.play("right")
       blob.move(SPEED, 0)
     }
   })
 
-  onKeyDown("a", () => {
+  onKeyDown(["a", "left"], () => {
     if (blob) {
       blob.play("left")
       blob.move(-SPEED, 0)
     }
   })
 
-  onKeyPress(["space", "w"], () => {
+  onKeyPress(["space", "w", "up"], () => {
     if (blob && blob.isGrounded()) {
       isJumping = true
       jumpStartTime = time()
@@ -355,7 +366,7 @@ scene("tutorial", () => {
     }
   })
 
-  onKeyDown(["space", "w"], () => {
+  onKeyDown(["space", "w", "up"], () => {
     if (blob && isJumping && !blob.isGrounded()) {
       const holdTime = time() - jumpStartTime
       if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
@@ -364,17 +375,17 @@ scene("tutorial", () => {
     }
   })
 
-  onKeyRelease(["space", "w"], () => {
+  onKeyRelease(["space", "w", "up"], () => {
     isJumping = false
   })
 
-  onKeyDown("s", () => {
+  onKeyDown(["s", "down"], () => {
     if (blob && !blob.isGrounded()) {
       setGravity(FAST_FALL_GRAVITY)
     }
   })
 
-  onKeyRelease("s", () => {
+  onKeyRelease(["s", "down"], () => {
     setGravity(NORMAL_GRAVITY)
   })
 })
@@ -431,14 +442,6 @@ scene("game", () => {
     pos(1000, 398), // Positioned above the platform
     area(),
     "door",
-  ])
-
-  add([
-    rect(5000, 48),
-    pos(-1000, 0),
-    area(),
-    color(0, 0, 255),
-    body({ isStatic: true }),
   ])
 
   add([
@@ -697,21 +700,21 @@ scene("game", () => {
     }
   })
 
-  onKeyDown("d", () => {
+  onKeyDown(["d", "right"], () => {
     if (blob) {
       blob.play("right")
       blob.move(SPEED, 0)
     }
   })
 
-  onKeyDown("a", () => {
+  onKeyDown(["a", "left"], () => {
     if (blob) {
       blob.play("left")
       blob.move(-SPEED, 0)
     }
   })
 
-  onKeyPress(["space", "w"], () => {
+  onKeyPress(["space", "w", "up"], () => {
     if (blob && blob.isGrounded()) {
       isJumping = true
       jumpStartTime = time()
@@ -721,7 +724,7 @@ scene("game", () => {
     }
   })
 
-  onKeyDown(["space", "w"], () => {
+  onKeyDown(["space", "w", "up"], () => {
     if (blob && isJumping && !blob.isGrounded()) {
       const holdTime = time() - jumpStartTime
       if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
@@ -730,17 +733,17 @@ scene("game", () => {
     }
   })
 
-  onKeyRelease(["space", "w"], () => {
+  onKeyRelease(["space", "w", "up"], () => {
     isJumping = false
   })
 
-  onKeyDown("s", () => {
+  onKeyDown(["s", "down"], () => {
     if (blob && !blob.isGrounded()) {
       setGravity(FAST_FALL_GRAVITY)
     }
   })
 
-  onKeyRelease("s", () => {
+  onKeyRelease(["s", "down"], () => {
     setGravity(NORMAL_GRAVITY)
   })
 })
