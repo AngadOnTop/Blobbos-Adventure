@@ -32,6 +32,5 @@ export default defineConfig({
     },
     plugins: [
         // Disable messages removing this line
-        kaplayCongrats(),
     ],
 });

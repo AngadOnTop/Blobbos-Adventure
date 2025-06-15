@@ -11,6 +11,13 @@ kaplay({
 let gameStarted = false
 let blob = null
 const SPEED = 300
+const MAX_JUMP_FORCE = 900
+const MIN_JUMP_FORCE = 400
+let jumpStartTime = 0
+let isJumping = false
+const NORMAL_GRAVITY = 1600
+const FAST_FALL_GRAVITY = 3200
+let score = 0
 
 // Load assets
 await Promise.all([
@@ -34,6 +41,7 @@ await Promise.all([
   loadSprite("start", "/sprites/start.png"),
   loadSprite("studio", "/sprites/solostudio.png"),
   loadSprite("heal", "/sprites/heal.png"),
+  loadSprite("respawn", "/sprites/respawn.png"),
   loadSound("jump", "/sounds/jump.wav"),
   loadSound("collectingCoin", "/sounds/coin.wav"),
   loadSound("hit", "/sounds/hit.wav"),
@@ -43,7 +51,7 @@ await Promise.all([
   loadSound("UIstart", "/sounds/UIstart.wav"),
 ])
 
-function showMainMenu() {
+scene("mainMenu", () => {
   play("music", { loop: true })
 
   add([
@@ -129,19 +137,16 @@ function showMainMenu() {
   })
 
   start.onClick(() => {
-  play("UIstart")
-    destroyAll()
-    gameStarted = true
-    startGame()
+    play("UIstart")
+    go("game")
   })
-}
+})
 
-function startGame() {
-  setGravity(1600)
+scene("game", () => {
+  setGravity(NORMAL_GRAVITY)
   const WIDTH = 1280
   const HEIGHT = 720
   const GROUND_TILE_COUNT = 20
-  let score = 0
 
   add([
     sprite("background"),
@@ -166,6 +171,16 @@ function startGame() {
       sprite("ground"),
       scale(4),
       pos(200 + i * 64, 672),
+      area(),
+      body({ isStatic: true }),
+    ])
+  }
+
+  for (let i = 0; i < 10; i++) {
+    add([
+      sprite("ground"),
+      scale(4),
+      pos(600 + i * 64, 480),
       area(),
       body({ isStatic: true }),
     ])
@@ -226,35 +241,103 @@ function startGame() {
   }
 
   function spawnHeal() {
-  const y = 624
-  const safeZones = [
-    { min: 200, max: 380 },
-    { min: 500, max: 800 },
-  ]
-  const zone = choose(safeZones)
-  const x = rand(zone.min, zone.max)
+    const y = 624
+    const safeZones = [
+      { min: 200, max: 380 },
+      { min: 500, max: 800 },
+    ]
+    const zone = choose(safeZones)
+    const x = rand(zone.min, zone.max)
 
-  const heal = add([
-    sprite("heal"),
-    area(),
-    "heal",
-    scale(3),
-    pos(x, y),
-  ])
+    const heal = add([
+      sprite("heal"),
+      area(),
+      "heal",
+      scale(3),
+      pos(x, y),
+    ])
 
-  let goingUp = true
-  loop(1.0, () => {
-    if (!heal.exists()) return
-    const offset = goingUp ? -15 : 15
-    tween(heal.pos.y, heal.pos.y + offset, 0.8, val => heal.pos.y = val)
-    goingUp = !goingUp
-  })
+    let goingUp = true
+    loop(1.0, () => {
+      if (!heal.exists()) return
+      const offset = goingUp ? -15 : 15
+      tween(heal.pos.y, heal.pos.y + offset, 0.8, val => heal.pos.y = val)
+      goingUp = !goingUp
+    })
 
-  return heal
+    return heal
   }
-  
+
   let coin = spawnCoin()
   let heal = spawnHeal()
+
+  function showDeathScreen() {
+    const deathScreen = add([
+      rect(width(), height()),
+      color(0, 0, 0),
+      opacity(0.7),
+      fixed(),
+      z(100),
+    ])
+
+    const respawnButton = add([
+      sprite("respawn"),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      fixed(),
+      z(101),
+      area(),
+      scale(4),
+    ])
+
+    const menuButton = add([
+      text("Back to Menu", { size: 24 }),
+      pos(width() / 2, height() / 2 + 100),
+      anchor("center"),
+      fixed(),
+      z(101),
+      area(),
+      color(255, 255, 255),
+      scale(1),
+    ])
+
+    respawnButton.onHover(() => {
+      tween(respawnButton.scale.x, 4.2, 0.3, (val) => {
+        respawnButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    respawnButton.onHoverEnd(() => {
+      tween(respawnButton.scale.x, 4.0, 0.3, (val) => {
+        respawnButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    menuButton.onHover(() => {
+      tween(menuButton.scale.x, 1.2, 0.3, (val) => {
+        menuButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    menuButton.onHoverEnd(() => {
+      tween(menuButton.scale.x, 1.0, 0.3, (val) => {
+        menuButton.scale = vec2(val)
+      }, easings.easeOutElastic)
+    })
+
+    respawnButton.onClick(() => {
+      destroy(deathScreen)
+      destroy(respawnButton)
+      destroy(menuButton)
+      wait(0.1, () => {
+        spawnBlob()
+      })
+    })
+
+    menuButton.onClick(() => {
+      go("mainMenu")
+    })
+  }
 
   function spawnBlob() {
     blob = add([
@@ -329,9 +412,9 @@ function startGame() {
 
     blob.onCollide("heal", (h) => {
       if (blob.hp() < 100) {
-          blob.heal(25)
-          destroy(h)
-          heal = spawnHeal()
+        blob.heal(25)
+        destroy(h)
+        heal = spawnHeal()
       }
     })
 
@@ -341,20 +424,11 @@ function startGame() {
       destroy(blob)
       blob = null
       play("death")
+      showDeathScreen()
     })
   }
 
   spawnBlob()
-
-  add([
-    text("Respawn", { size: 32 }),
-    pos(WIDTH / 2, 300),
-    anchor("center"),
-    area(),
-    color(0, 0, 0),
-  ]).onClick(() => {
-    if (!blob) spawnBlob()
-  })
 
   onUpdate(() => {
     if (!blob) return
@@ -362,7 +436,8 @@ function startGame() {
     if (blob.pos.y > 1000 || blob.pos.y < 0) {
       destroy(blob)
       blob = null
-      spawnBlob()
+      play("death")
+      showDeathScreen()
       return
     }
 
@@ -370,28 +445,54 @@ function startGame() {
       setCamPos(blob.pos)
     }
   })
-}
 
-onKeyDown("d", () => {
-  if (blob) {
-    blob.play("right")
-    blob.move(SPEED, 0)
-  }
+  onKeyDown("d", () => {
+    if (blob) {
+      blob.play("right")
+      blob.move(SPEED, 0)
+    }
+  })
+
+  onKeyDown("a", () => {
+    if (blob) {
+      blob.play("left")
+      blob.move(-SPEED, 0)
+    }
+  })
+
+  onKeyPress(["space", "w"], () => {
+    if (blob && blob.isGrounded()) {
+      isJumping = true
+      jumpStartTime = time()
+      blob.play("jump")
+      play("jump", { volume: 0.3 })
+      blob.jump(MIN_JUMP_FORCE)
+    }
+  })
+
+  onKeyDown(["space", "w"], () => {
+    if (blob && isJumping && !blob.isGrounded()) {
+      const holdTime = time() - jumpStartTime
+      if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
+        blob.jump(MAX_JUMP_FORCE - MIN_JUMP_FORCE)
+      }
+    }
+  })
+
+  onKeyRelease(["space", "w"], () => {
+    isJumping = false
+  })
+
+  onKeyDown("s", () => {
+    if (blob && !blob.isGrounded()) {
+      setGravity(FAST_FALL_GRAVITY)
+    }
+  })
+
+  onKeyRelease("s", () => {
+    setGravity(NORMAL_GRAVITY)
+  })
 })
 
-onKeyDown("a", () => {
-  if (blob) {
-    blob.play("left")
-    blob.move(-SPEED, 0)
-  }
-})
+go("mainMenu")
 
-onKeyPress(["space", "w"], () => {
-  if (blob && blob.isGrounded()) {
-    blob.jump()
-    blob.play("jump")
-    play("jump", { volume: 0.3 })
-  }
-})
-
-showMainMenu()
