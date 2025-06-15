@@ -812,4 +812,3 @@ scene("game", () => {
 })
 
 go("mainMenu")
-
