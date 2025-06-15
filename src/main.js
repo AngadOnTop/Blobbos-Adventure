@@ -11,8 +11,9 @@ kaplay({
 let gameStarted = false
 let blob = null
 const SPEED = 300
-const MAX_JUMP_FORCE = 900
-const MIN_JUMP_FORCE = 400
+const MAX_JUMP_FORCE = 0
+const MIN_JUMP_FORCE = 0
+const JUMP_HOLD_FORCE = 600
 let jumpStartTime = 0
 let isJumping = false
 const NORMAL_GRAVITY = 1600
@@ -149,7 +150,6 @@ scene("tutorial", () => {
   const WIDTH = 1280
   const HEIGHT = 720
 
-  // Create gradient-like background using two rectangles
   add([
     rect(WIDTH, HEIGHT),
     pos(0, 0),
@@ -235,40 +235,48 @@ scene("tutorial", () => {
     })
   }
 
-  for (let i = 0; i < 20; i++) {
+  // Helper function for platforms
+  function createPlatform(startX, startY, length, direction = "horizontal") {
+    for (let i = 0; i < length; i++) {
+      const x = direction === "horizontal" ? startX + i * 64 : startX
+      const y = direction === "horizontal" ? startY : startY - i * 64
+      add([
+        sprite("tile"),
+        scale(4),
+        pos(x, y),
+        area(),
+        body({ isStatic: true }),
+      ])
+    }
+  }
+
+  // Helper function for spikes
+  function createSpike(x, y, type = "small") {
     add([
-      sprite("tile"),
-      scale(4),
-      pos(200 + i * 64, 672),
+      sprite(type === "small" ? "spike" : "longSpike"),
       area(),
       body({ isStatic: true }),
+      pos(x, y),
+      scale(4),
+      type === "small" ? "smallSpike" : "longSpike",
     ])
   }
 
-  for (let i = 0; i < 20; i++) {
-    add([
-      sprite("tile"),
-      scale(4),
-      pos(200, 672 - i * 64),
-      area(),
-      body({ isStatic: true }),
-    ])
-  }
+  createPlatform(200, 672, 20) 
+  createPlatform(200, 672, 20, "vertical") 
+  createPlatform(1480, 672, 25, "vertical") 
+  createPlatform(905, 544, 6) 
+  createPlatform(392, 352, 5)
+  createPlatform(840, 214, 4)
 
-  for (let i = 0; i < 25; i++) {
-    add([
-      sprite("tile"),
-      scale(4),
-      pos(1480, 672 - i * 64),
-      area(),
-      body({ isStatic: true }),
-    ])
-  }
+  // Add some spikes
+  createSpike(852, 182)  // Small spike | x pos + 12 | y pos + 32
+  createSpike(450, 612, "long")  // Long spike
 
   add([
     sprite("door"),
     scale(4),
-    pos(500, 616),
+    pos(1000, 398),
     area(),
     "door",
   ])
@@ -369,8 +377,8 @@ scene("tutorial", () => {
   onKeyDown(["space", "w", "up"], () => {
     if (blob && isJumping && !blob.isGrounded()) {
       const holdTime = time() - jumpStartTime
-      if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
-        blob.jump(MAX_JUMP_FORCE - MIN_JUMP_FORCE)
+      if (holdTime < 0.3) {
+        blob.jump(JUMP_HOLD_FORCE)  // Apply additional force instead of subtracting
       }
     }
   })
@@ -424,7 +432,6 @@ scene("game", () => {
     ])
   }
 
-  // Create elevated platform
   for (let i = 0; i < 10; i++) {
     add([
       sprite("ground"),
@@ -435,11 +442,10 @@ scene("game", () => {
     ])
   }
 
-  // Add door at the end of the elevated platform
   add([
     sprite("door"),
     scale(4),
-    pos(1000, 398), // Positioned above the platform
+    pos(1000, 398), 
     area(),
     "door",
   ])
@@ -727,8 +733,8 @@ scene("game", () => {
   onKeyDown(["space", "w", "up"], () => {
     if (blob && isJumping && !blob.isGrounded()) {
       const holdTime = time() - jumpStartTime
-      if (holdTime < 0.3) { // Only apply additional force for the first 0.3 seconds
-        blob.jump(MAX_JUMP_FORCE - MIN_JUMP_FORCE)
+      if (holdTime < 0.3) {
+        blob.jump(JUMP_HOLD_FORCE)  // Apply additional force instead of subtracting
       }
     }
   })
