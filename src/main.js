@@ -295,8 +295,12 @@ scene("tutorial", () => {
   createPlatform(1480, 672, 8, "vertical") // right wall
   createPlatform(905, 544, 6) //p1
   add([
-    text("Platform 1", { size: 24 }),
-    pos(width() / 2, height() / 2 - 100),
+    text(`Use W A S D to move
+and space to jump`, { 
+    font: "Arial",
+    size: 24,
+    }),
+    pos(1100,  450),
     color(255, 255, 255),
     anchor("center"),
     z(100),
@@ -804,7 +808,7 @@ scene("game", () => {
     if (blob && isJumping && !blob.isGrounded()) {
       const holdTime = time() - jumpStartTime
       if (holdTime < 0.3) {
-        blob.jump(JUMP_HOLD_FORCE)  // Apply additional force instead of subtracting
+        blob.jump(JUMP_HOLD_FORCE)  
       }
     }
   })
