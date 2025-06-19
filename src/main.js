@@ -53,6 +53,7 @@ async function loadAssets() {
     loadSound("music", "/sounds/music.mp3"),
     loadSound("UIpop", "/sounds/UIpop.wav"),
     loadSound("UIstart", "/sounds/UIstart.wav"),
+    loadFont("PixelFont", "sprites/PressStart2P-Regular.ttf")
   ])
 }
 
@@ -295,15 +296,25 @@ scene("tutorial", () => {
   createPlatform(1480, 672, 8, "vertical") // right wall
   createPlatform(905, 544, 6) //p1
   add([
-    text(`Use W A S D to move
-and space to jump`, { 
-    font: "Arial",
-    size: 24,
+    text(`Use W A S D or
+ARROWs to move!`, { 
+    font: "PixelFont",
+    size: 20,
+    }),
+    pos(500,  550),
+    color(255, 255, 255),
+    anchor("center"),
+    z(0),
+  ])
+  add([
+    text(`Hold jump to jump higher!`, { 
+    font: "PixelFont",
+    size: 20,
     }),
     pos(1100,  450),
     color(255, 255, 255),
     anchor("center"),
-    z(100),
+    z(0),
   ])
   createPlatform(352, 352, 5) // p2
   createPlatform(840, 224, 4)// p3
