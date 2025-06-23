@@ -316,6 +316,26 @@ ARROWs to move!`, {
     anchor("center"),
     z(0),
   ])
+  add([
+    text(`Dont touch the spikes, they hurt`, { 
+    font: "PixelFont",
+    size: 20,
+    }),
+    pos(600,  150),
+    color(255, 255, 255),
+    anchor("center"),
+    z(0),
+  ])
+  add([
+    text(`Here ya go, goodluck!`, { 
+    font: "PixelFont",
+    size: 20,
+    }),
+    pos(1400,  0),
+    color(255, 255, 255),
+    anchor("center"),
+    z(0),
+  ])
   createPlatform(352, 352, 5) // p2
   createPlatform(840, 224, 4)// p3
   createPlatform(1288, 224, 3) // p4
