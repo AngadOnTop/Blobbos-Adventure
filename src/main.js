@@ -46,6 +46,7 @@ async function loadAssets() {
     loadSprite("respawn", "/sprites/respawn.png"),
     loadSprite("door", "/sprites/door.png"),
     loadSprite("tile", "/sprites/tile.png"),
+    loadSprite("gem", "/sprites/gem.png"),
     loadSound("jump", "/sounds/jump.wav"),
     loadSound("collectingCoin", "/sounds/coin.wav"),
     loadSound("hit", "/sounds/hit.wav"),
