@@ -24,4 +24,3 @@ will build your js files into `dist/`
 $ npm run zip
 ```
 
-will build your game and package into a .zip file, you can upload to your server or itch.io / newground etc.
